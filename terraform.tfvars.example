@@ -1,0 +1,26 @@
+# Copy this file to terraform.tfvars and adjust as needed.
+# terraform.tfvars is gitignored (may contain sensitive paths/settings).
+
+# Optional: set explicit kubeconfig path. Leave commented to use defaults/KUBECONFIG.
+# kubeconfig_path = "~/.kube/config"
+
+kubeflow_version = "1.11"
+
+# cert-manager is required for Pipelines and webhooks
+enable_cert_manager = true
+
+# Istio enables auth (Dex + OAuth2-Proxy), Dashboard, and Notebooks UI.
+# Heavy — skip for local/minimal deployments.
+enable_istio = false
+
+# Core component
+enable_pipelines = true
+
+# Optional components (most require Istio)
+enable_central_dashboard = false
+enable_profiles          = false
+enable_admission_webhook = false
+enable_notebooks         = false
+enable_katib             = false
+enable_training_operator = false
+enable_kserve            = false

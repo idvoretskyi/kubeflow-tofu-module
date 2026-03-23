@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  opentofu-sanity:
+    name: OpenTofu Sanity
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup OpenTofu
+        uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: latest
+
+      - name: Check formatting
+        run: tofu fmt -check -recursive
+
+      - name: Initialize (no backend)
+        run: tofu init -backend=false
+
+      - name: Validate
+        run: tofu validate
