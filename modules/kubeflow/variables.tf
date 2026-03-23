@@ -35,6 +35,11 @@ variable "enable_pipelines" {
   description = "Deploy Kubeflow Pipelines"
   type        = bool
   default     = true
+
+  validation {
+    condition     = !var.enable_pipelines || var.enable_cert_manager
+    error_message = "enable_pipelines = true requires enable_cert_manager = true because Pipelines cluster-scoped resources use the cert-manager path and depend on the cert-manager issuer."
+  }
 }
 
 variable "enable_central_dashboard" {
@@ -58,6 +63,11 @@ variable "enable_admission_webhook" {
   description = "Deploy PodDefaults admission webhook"
   type        = bool
   default     = false
+
+  validation {
+    condition     = !var.enable_admission_webhook || var.enable_cert_manager
+    error_message = "enable_admission_webhook = true requires enable_cert_manager = true because the admission webhook uses the cert-manager overlay."
+  }
 }
 
 variable "enable_notebooks" {
