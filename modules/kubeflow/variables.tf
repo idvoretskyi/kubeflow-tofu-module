@@ -64,6 +64,11 @@ variable "enable_notebooks" {
   description = "Deploy Notebook Controller and Jupyter Web App (web app requires Istio)"
   type        = bool
   default     = false
+
+  validation {
+    condition     = (!var.enable_notebooks) || var.enable_istio
+    error_message = "enable_notebooks = true requires enable_istio = true because the Jupyter Web App depends on the Istio overlay."
+  }
 }
 
 variable "enable_katib" {
