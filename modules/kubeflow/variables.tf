@@ -15,11 +15,7 @@ variable "kubeflow_namespace" {
   default     = "kubeflow"
 }
 
-variable "kubeconfig_path" {
-  description = "Optional path to kubeconfig file. Leave null to use provider defaults/KUBECONFIG."
-  type        = string
-  default     = null
-}
+# Infrastructure toggles
 
 variable "enable_cert_manager" {
   description = "Deploy cert-manager (required by Pipelines and webhooks)"
@@ -32,6 +28,8 @@ variable "enable_istio" {
   type        = bool
   default     = false
 }
+
+# Kubeflow component toggles
 
 variable "enable_pipelines" {
   description = "Deploy Kubeflow Pipelines"

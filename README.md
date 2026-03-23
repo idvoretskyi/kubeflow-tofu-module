@@ -8,6 +8,13 @@ Deploy Kubeflow on any Kubernetes cluster with OpenTofu/Terraform.
 - Kubernetes cluster with `kubectl` access
 - 2+ vCPUs, 8+ GB RAM (for Pipelines only; more for full stack)
 
+## Repository Structure
+
+- `modules/kubeflow`: implementation module with resources, variables, outputs, and provider requirements
+- `examples/minimal`: minimal cert-manager + pipelines usage
+- `examples/full-stack`: full-stack usage with Istio and optional Kubeflow components
+- Root module: wrapper entrypoint with provider configuration and pass-through variables/outputs
+
 ## Quick Start
 
 ```bash
@@ -69,6 +76,20 @@ tofu init && tofu apply
 ```
 
 This deploys cert-manager and Pipelines only, which fits comfortably in 8GB RAM.
+
+## Examples
+
+```bash
+cd examples/minimal
+tofu init
+tofu plan
+```
+
+```bash
+cd examples/full-stack
+tofu init
+tofu plan
+```
 
 ## Pre-Commit Hooks
 
