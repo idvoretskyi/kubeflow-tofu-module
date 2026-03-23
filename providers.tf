@@ -5,5 +5,3 @@ provider "kubernetes" {
 provider "kustomization" {
   kubeconfig_path = var.kubeconfig_path
 }
-
-provider "time" {}

@@ -15,11 +15,7 @@ variable "kubeflow_namespace" {
   default     = "kubeflow"
 }
 
-variable "kubeconfig_path" {
-  description = "Optional path to kubeconfig file. Leave null to use provider defaults/KUBECONFIG."
-  type        = string
-  default     = null
-}
+# Infrastructure toggles
 
 variable "enable_cert_manager" {
   description = "Deploy cert-manager (required by Pipelines and webhooks)"
@@ -33,16 +29,28 @@ variable "enable_istio" {
   default     = false
 }
 
+# Kubeflow component toggles
+
 variable "enable_pipelines" {
   description = "Deploy Kubeflow Pipelines"
   type        = bool
   default     = true
+
+  validation {
+    condition     = !var.enable_pipelines || var.enable_cert_manager
+    error_message = "enable_pipelines = true requires enable_cert_manager = true because Pipelines cluster-scoped resources use the cert-manager path and depend on the cert-manager issuer."
+  }
 }
 
 variable "enable_central_dashboard" {
   description = "Deploy Central Dashboard (requires Istio)"
   type        = bool
   default     = false
+
+  validation {
+    condition     = var.enable_istio || !var.enable_central_dashboard
+    error_message = "enable_central_dashboard = true requires enable_istio = true, because the Central Dashboard depends on Istio."
+  }
 }
 
 variable "enable_profiles" {
@@ -55,12 +63,22 @@ variable "enable_admission_webhook" {
   description = "Deploy PodDefaults admission webhook"
   type        = bool
   default     = false
+
+  validation {
+    condition     = !var.enable_admission_webhook || var.enable_cert_manager
+    error_message = "enable_admission_webhook = true requires enable_cert_manager = true because the admission webhook uses the cert-manager overlay."
+  }
 }
 
 variable "enable_notebooks" {
   description = "Deploy Notebook Controller and Jupyter Web App (web app requires Istio)"
   type        = bool
   default     = false
+
+  validation {
+    condition     = (!var.enable_notebooks) || var.enable_istio
+    error_message = "enable_notebooks = true requires enable_istio = true because the Jupyter Web App depends on the Istio overlay."
+  }
 }
 
 variable "enable_katib" {
