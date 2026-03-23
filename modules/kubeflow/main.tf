@@ -64,14 +64,6 @@ resource "kubernetes_namespace" "cert_manager" {
   }
 }
 
-resource "kubernetes_namespace" "istio_system" {
-  count = var.enable_istio ? 1 : 0
-
-  metadata {
-    name = "istio-system"
-  }
-}
-
 #######################################
 # Cert-Manager
 #######################################
