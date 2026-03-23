@@ -41,6 +41,11 @@ variable "enable_central_dashboard" {
   description = "Deploy Central Dashboard (requires Istio)"
   type        = bool
   default     = false
+
+  validation {
+    condition     = var.enable_istio || !var.enable_central_dashboard
+    error_message = "enable_central_dashboard = true requires enable_istio = true, because the Central Dashboard depends on Istio."
+  }
 }
 
 variable "enable_profiles" {
