@@ -5,6 +5,10 @@ on:
   push:
     branches: [main]
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -13,20 +17,46 @@ jobs:
     name: OpenTofu Sanity
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        dir: [".", "examples/minimal", "examples/full-stack"]
+
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
       - name: Setup OpenTofu
-        uses: opentofu/setup-opentofu@v2
+        uses: opentofu/setup-opentofu@v2.0.1
         with:
           tofu_version: latest
 
       - name: Check formatting
         run: tofu fmt -check -recursive
+        if: matrix.dir == '.'
 
       - name: Initialize (no backend)
         run: tofu init -backend=false
+        working-directory: ${{ matrix.dir }}
 
       - name: Validate
         run: tofu validate
+        working-directory: ${{ matrix.dir }}
+
+  tflint:
+    name: TFLint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v6.2.2
+        with:
+          tflint_version: latest
+
+      - name: Initialize TFLint
+        run: tflint --init
+
+      - name: Run TFLint
+        run: tflint --recursive --format compact
