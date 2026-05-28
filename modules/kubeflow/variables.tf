@@ -98,3 +98,34 @@ variable "enable_kserve" {
   type        = bool
   default     = false
 }
+
+# cert-manager tuning
+
+variable "cert_manager_wait_seconds" {
+  description = "Seconds to wait after the cert-manager webhook deployment becomes Available before creating dependent resources (ClusterIssuer, Pipelines, etc.). A short buffer is needed because the webhook process requires a moment to begin serving after the Deployment readiness gate passes."
+  type        = number
+  default     = 30
+}
+
+variable "cert_manager_webhook_failure_policy" {
+  description = <<-EOT
+    failurePolicy for cert-manager admission webhooks (ValidatingWebhookConfiguration
+    and MutatingWebhookConfiguration). The default value 'Fail' is correct for
+    self-managed clusters where the API server can reach in-cluster services.
+
+    Set to 'Ignore' on managed Kubernetes (Akamai LKE, GKE, EKS, AKS, etc.) where
+    the managed control plane cannot reliably reach in-cluster ClusterIP/pod CIDRs.
+    In those environments every cert-manager webhook call times out, causing
+    ClusterIssuer and Certificate creation to fail even though cert-manager itself
+    is fully healthy.
+
+    Values: 'Fail' (strict, default) | 'Ignore' (permissive, for managed K8s).
+  EOT
+  type        = string
+  default     = "Fail"
+
+  validation {
+    condition     = contains(["Fail", "Ignore"], var.cert_manager_webhook_failure_policy)
+    error_message = "cert_manager_webhook_failure_policy must be 'Fail' or 'Ignore'."
+  }
+}

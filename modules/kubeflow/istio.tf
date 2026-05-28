@@ -46,7 +46,7 @@ resource "kustomization_resource" "kubeflow_istio_resources" {
 
   depends_on = [
     kustomization_resource.istio,
-    kubernetes_namespace.kubeflow,
+    kubernetes_namespace_v1.kubeflow,
   ]
 }
 

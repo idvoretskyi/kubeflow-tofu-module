@@ -5,7 +5,7 @@ Deploy Kubeflow on any Kubernetes cluster with OpenTofu/Terraform.
 ## Prerequisites
 
 - OpenTofu >= 1.6.0 (or Terraform >= 1.6.0)
-- Kubernetes cluster with `kubectl` access
+- Kubernetes cluster with `kubectl` access (`kubectl` must be on `PATH`)
 - 2+ vCPUs, 8+ GB RAM (for Pipelines only; more for full stack)
 
 ## Repository Structure
@@ -66,6 +66,8 @@ open http://localhost:8080
 | `enable_katib` | Deploy Katib (hyperparameter tuning) | `false` |
 | `enable_training_operator` | Deploy Training Operator | `false` |
 | `enable_kserve` | Deploy KServe (model serving) | `false` |
+| `cert_manager_wait_seconds` | Post-readiness buffer before creating issuer/dependents | `30` |
+| `cert_manager_webhook_failure_policy` | Webhook failure policy; set `"Ignore"` on managed K8s | `"Fail"` |
 
 ## Local Development (Docker Desktop / Colima)
 
@@ -90,6 +92,31 @@ cd examples/full-stack
 tofu init
 tofu plan
 ```
+
+## Managed Kubernetes (LKE / GKE / EKS / AKS)
+
+On managed Kubernetes the API server runs outside the cluster and cannot
+reliably reach in-cluster ClusterIP services. This means cert-manager webhook
+calls (which validate `ClusterIssuer` and `Certificate` resources) time out,
+even though cert-manager itself is healthy.
+
+Set `cert_manager_webhook_failure_policy = "Ignore"` to patch the cert-manager
+`ValidatingWebhookConfiguration` and `MutatingWebhookConfiguration` after
+install so that webhook timeouts are treated as non-fatal:
+
+```hcl
+module "kubeflow" {
+  source = "github.com/idvoretskyi/kubeflow-tofu-module//modules/kubeflow"
+
+  cert_manager_webhook_failure_policy = "Ignore"
+  enable_pipelines                    = true
+}
+```
+
+This is safe for Kubeflow workloads: the webhook validates cert-manager custom
+resources, but `ClusterIssuer` and `Certificate` objects are simple and
+well-formed when emitted by the kustomization provider. The risk of bypassing
+validation is low.
 
 ## Pre-Commit Hooks
 

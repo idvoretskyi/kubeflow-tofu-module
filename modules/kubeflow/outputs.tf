@@ -1,6 +1,6 @@
 output "kubeflow_namespace" {
   description = "Namespace where Kubeflow is deployed"
-  value       = kubernetes_namespace.kubeflow.metadata[0].name
+  value       = kubernetes_namespace_v1.kubeflow.metadata[0].name
 }
 
 output "access_instructions" {
