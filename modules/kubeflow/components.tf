@@ -109,6 +109,40 @@ resource "kustomization_resource" "training_operator" {
   depends_on = [kubernetes_namespace_v1.kubeflow]
 }
 
+# On managed Kubernetes (LKE, GKE, EKS, AKS) the control plane cannot reach
+# in-cluster ClusterIPs, so the training-operator ValidatingWebhookConfiguration
+# times out whenever a TrainingJob resource (PyTorchJob, TFJob, etc.) is created.
+# When training_operator_webhook_failure_policy = "Ignore" we patch the webhook
+# after install so those timeouts are non-fatal.
+resource "null_resource" "training_operator_webhook_failure_policy" {
+  count = var.enable_training_operator && var.training_operator_webhook_failure_policy == "Ignore" ? 1 : 0
+
+  triggers = {
+    policy     = var.training_operator_webhook_failure_policy
+    install_id = jsonencode(sort(keys(kustomization_resource.training_operator)))
+  }
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      kubectl wait --for=condition=Available \
+        deployment/training-operator \
+        -n kubeflow --timeout=300s
+      WEBHOOK="validator.training-operator.kubeflow.org"
+      COUNT=$(kubectl get validatingwebhookconfiguration "$WEBHOOK" \
+        -o jsonpath='{range .webhooks[*]}{.name}{"\n"}{end}' | wc -l)
+      PATCH=$(python3 -c "
+import json, sys
+n = int(sys.argv[1])
+print(json.dumps([{'op':'replace','path':f'/webhooks/{i}/failurePolicy','value':'Ignore'} for i in range(n)]))
+" "$COUNT")
+      kubectl patch validatingwebhookconfiguration "$WEBHOOK" \
+        --type=json -p="$PATCH"
+    EOT
+  }
+
+  depends_on = [kustomization_resource.training_operator]
+}
+
 #######################################
 # KServe
 #######################################
