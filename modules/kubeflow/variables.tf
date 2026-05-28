@@ -99,6 +99,30 @@ variable "enable_kserve" {
   default     = false
 }
 
+# Training Operator tuning
+
+variable "training_operator_webhook_failure_policy" {
+  description = <<-EOT
+    failurePolicy for the training-operator ValidatingWebhookConfiguration.
+    The default value 'Fail' is correct for self-managed clusters where the
+    API server can reach in-cluster services.
+
+    Set to 'Ignore' on managed Kubernetes (Akamai LKE, GKE, EKS, AKS, etc.)
+    where the managed control plane cannot reliably reach in-cluster ClusterIP /
+    pod CIDRs. In those environments every webhook call for TrainingJob resources
+    (PyTorchJob, TFJob, etc.) times out, even when training-operator is healthy.
+
+    Values: 'Fail' (strict, default) | 'Ignore' (permissive, for managed K8s).
+  EOT
+  type        = string
+  default     = "Fail"
+
+  validation {
+    condition     = contains(["Fail", "Ignore"], var.training_operator_webhook_failure_policy)
+    error_message = "training_operator_webhook_failure_policy must be 'Fail' or 'Ignore'."
+  }
+}
+
 # cert-manager tuning
 
 variable "cert_manager_wait_seconds" {
