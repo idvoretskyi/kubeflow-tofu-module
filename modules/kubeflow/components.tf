@@ -11,7 +11,7 @@ resource "kustomization_resource" "central_dashboard" {
   for_each = var.enable_central_dashboard ? data.kustomization_build.central_dashboard[0].ids : toset([])
   manifest = data.kustomization_build.central_dashboard[0].manifests[each.value]
 
-  depends_on = [kubernetes_namespace.kubeflow]
+  depends_on = [kubernetes_namespace_v1.kubeflow]
 }
 
 #######################################
@@ -27,7 +27,7 @@ resource "kustomization_resource" "profiles_kfam" {
   for_each = var.enable_profiles ? data.kustomization_build.profiles_kfam[0].ids : toset([])
   manifest = data.kustomization_build.profiles_kfam[0].manifests[each.value]
 
-  depends_on = [kubernetes_namespace.kubeflow]
+  depends_on = [kubernetes_namespace_v1.kubeflow]
 }
 
 #######################################
@@ -44,7 +44,7 @@ resource "kustomization_resource" "admission_webhook" {
   manifest = data.kustomization_build.admission_webhook[0].manifests[each.value]
 
   depends_on = [
-    kubernetes_namespace.kubeflow,
+    kubernetes_namespace_v1.kubeflow,
     kustomization_resource.cert_manager_issuer,
   ]
 }
@@ -62,7 +62,7 @@ resource "kustomization_resource" "notebook_controller" {
   for_each = var.enable_notebooks ? data.kustomization_build.notebook_controller[0].ids : toset([])
   manifest = data.kustomization_build.notebook_controller[0].manifests[each.value]
 
-  depends_on = [kubernetes_namespace.kubeflow]
+  depends_on = [kubernetes_namespace_v1.kubeflow]
 }
 
 data "kustomization_build" "jupyter_web_app" {
@@ -74,7 +74,7 @@ resource "kustomization_resource" "jupyter_web_app" {
   for_each = var.enable_notebooks ? data.kustomization_build.jupyter_web_app[0].ids : toset([])
   manifest = data.kustomization_build.jupyter_web_app[0].manifests[each.value]
 
-  depends_on = [kubernetes_namespace.kubeflow]
+  depends_on = [kubernetes_namespace_v1.kubeflow]
 }
 
 #######################################
@@ -90,7 +90,7 @@ resource "kustomization_resource" "katib" {
   for_each = var.enable_katib ? data.kustomization_build.katib[0].ids : toset([])
   manifest = data.kustomization_build.katib[0].manifests[each.value]
 
-  depends_on = [kubernetes_namespace.kubeflow]
+  depends_on = [kubernetes_namespace_v1.kubeflow]
 }
 
 #######################################
@@ -106,7 +106,7 @@ resource "kustomization_resource" "training_operator" {
   for_each = var.enable_training_operator ? data.kustomization_build.training_operator[0].ids : toset([])
   manifest = data.kustomization_build.training_operator[0].manifests[each.value]
 
-  depends_on = [kubernetes_namespace.kubeflow]
+  depends_on = [kubernetes_namespace_v1.kubeflow]
 }
 
 #######################################
@@ -122,7 +122,7 @@ resource "kustomization_resource" "kserve" {
   for_each = var.enable_kserve ? data.kustomization_build.kserve[0].ids : toset([])
   manifest = data.kustomization_build.kserve[0].manifests[each.value]
 
-  depends_on = [kubernetes_namespace.kubeflow]
+  depends_on = [kubernetes_namespace_v1.kubeflow]
 }
 
 data "kustomization_build" "models_web_app" {

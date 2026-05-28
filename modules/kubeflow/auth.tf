@@ -12,7 +12,7 @@ resource "kustomization_resource" "oauth2_proxy" {
   wait = false
 
   depends_on = [
-    kubernetes_namespace.kubeflow,
+    kubernetes_namespace_v1.kubeflow,
     kustomization_resource.cert_manager,
     kustomization_resource.istio,
     time_sleep.wait_for_istio,
@@ -29,7 +29,7 @@ resource "kustomization_resource" "dex" {
   manifest = data.kustomization_build.dex[0].manifests[each.value]
 
   depends_on = [
-    kubernetes_namespace.kubeflow,
+    kubernetes_namespace_v1.kubeflow,
     kustomization_resource.oauth2_proxy,
   ]
 }

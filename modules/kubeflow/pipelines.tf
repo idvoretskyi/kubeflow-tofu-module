@@ -23,7 +23,7 @@ resource "kubernetes_service_account" "cache_deployer" {
     namespace = var.kubeflow_namespace
   }
 
-  depends_on = [kubernetes_namespace.kubeflow]
+  depends_on = [kubernetes_namespace_v1.kubeflow]
 }
 
 resource "kubernetes_cluster_role" "cache_deployer" {
@@ -92,7 +92,7 @@ resource "kustomization_resource" "pipelines" {
   manifest = data.kustomization_build.pipelines[0].manifests[each.value]
 
   depends_on = [
-    kubernetes_namespace.kubeflow,
+    kubernetes_namespace_v1.kubeflow,
     kustomization_resource.pipelines_cluster_scoped,
     kubernetes_cluster_role_binding.cache_deployer,
     kustomization_resource.cert_manager_issuer,

@@ -1,10 +1,10 @@
-resource "kubernetes_namespace" "kubeflow" {
+resource "kubernetes_namespace_v1" "kubeflow" {
   metadata {
     name = var.kubeflow_namespace
   }
 }
 
-resource "kubernetes_namespace" "cert_manager" {
+resource "kubernetes_namespace_v1" "cert_manager" {
   count = var.enable_cert_manager ? 1 : 0
 
   metadata {
@@ -12,7 +12,7 @@ resource "kubernetes_namespace" "cert_manager" {
   }
 }
 
-resource "kubernetes_namespace" "istio_system" {
+resource "kubernetes_namespace_v1" "istio_system" {
   count = var.enable_istio ? 1 : 0
 
   metadata {
