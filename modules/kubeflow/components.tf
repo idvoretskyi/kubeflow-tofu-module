@@ -126,7 +126,7 @@ resource "null_resource" "training_operator_webhook_failure_policy" {
     command = <<-EOT
       kubectl wait --for=condition=Available \
         deployment/training-operator \
-        -n kubeflow --timeout=300s
+        -n ${var.kubeflow_namespace} --timeout=300s
       WEBHOOK="validator.training-operator.kubeflow.org"
       COUNT=$(kubectl get validatingwebhookconfiguration "$WEBHOOK" \
         -o jsonpath='{range .webhooks[*]}{.name}{"\n"}{end}' | wc -l)
